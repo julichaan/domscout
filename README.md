@@ -10,6 +10,12 @@ DomScout is a Python-based subdomain enumeration tool for Bug Bounty that aggreg
 -   **Progress Tracking**: Displays a real-time progress bar during execution.
 -   **Clean Output**: Generates a single file (`alive_subdomains.txt`) with the final results and cleans up temporary files.
 
+## Compatibility
+
+-   **Linux**: Fully supported.
+-   **macOS**: Fully supported.
+-   **Windows**: **Not supported natively**. Windows users must use **WSL (Windows Subsystem for Linux)** to run this tool, as it relies on Unix-specific commands (`sudo`, `sed`, `jq`, `cat`).
+
 ## Prerequisites
 
 Before running DomScout, ensure you have the following tools installed and available in your system's PATH:
