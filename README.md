@@ -7,8 +7,9 @@ DomScout is a Python-based subdomain enumeration tool for Bug Bounty that aggreg
 -   **Multi-tool Aggregation**: Combines results from `subfinder`, `findomain`, `assetfinder`, `sublist3r`, and `crt.sh`.
 -   **Duplicate Removal**: Automatically merges and deduplicates results from all sources.
 -   **Live Subdomain Checking**: Uses `httpx` to verify which subdomains are alive.
+-   **Screenshot Capture**: Uses `gowitness` to take screenshots of all live web services.
 -   **Progress Tracking**: Displays a real-time progress bar during execution.
--   **Clean Output**: Generates a single file (`alive_webservices.txt`) with the final results and cleans up temporary files.
+-   **Clean Output**: Generates a single file (`alive_subdomains.txt`) with the final results, a `screenshots` folder, and cleans up temporary files.
 
 ## Compatibility
 
@@ -26,6 +27,7 @@ Before running DomScout, ensure you have the following tools installed and avail
 -   [Assetfinder](https://github.com/tomnomnom/assetfinder)
 -   [Sublist3r](https://github.com/aboul3la/Sublist3r)
 -   [httpx](https://github.com/projectdiscovery/httpx)
+-   [gowitness](https://github.com/sensepost/gowitness)
 -   `curl`
 -   `jq`
 
@@ -97,21 +99,22 @@ To get the best results with `subfinder`, it is highly recommended to configure 
 
 ## Usage
 
-Run the script using Python 3. You must provide the target domain.
+Run the script using Python 3. You must provide the target domain and the path to a resolvers file.
 
 ```bash
-python3 domscout.py <target>
+python3 domscout.py <target> -r <resolvers_file>
 ```
 
 ### Arguments
 
 -   `target`: The target domain to enumerate (e.g., `example.com`).
+-   `-r, --resolvers`: **(Required)** Path to a text file containing DNS resolvers (one per line).
 -   `-h, --help`: Show the help message and exit.
 
 ### Example
 
 ```bash
-python3 domscout.py example.com
+python3 domscout.py example.com -r /usr/share/wordlists/resolvers.txt
 ```
 
 ### Help
@@ -126,7 +129,9 @@ The tool will display a progress bar as it runs through the enumeration steps. O
 
 ## Output
 
--   **alive_subdomains.txt**: Contains the list of unique, live subdomains found for the target.
+-   **live_subs.txt**: Contains the list of subdomains that successfully resolved via DNS.
+-   **alive_webservices.txt**: Contains the list of live web services (HTTP/HTTPS) found by `httpx`.
+-   **screenshots/**: Directory containing screenshots of the live web services taken by `gowitness`.
 
 ## Author
 
