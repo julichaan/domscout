@@ -208,3 +208,11 @@ __marimo__/
 
 #alive_subdomains
 alive_subdomains.txt
+
+# DomScout temporary files
+subfinder-rescursive.txt
+findomain.txt
+assetfinder.txt
+sublist3r.txt
+crtsh.txt
+subdomains.txt
