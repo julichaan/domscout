@@ -19,7 +19,7 @@ class ProgressLoader:
         self.local_progress = 0.0
 
     def _animate(self):
-        chars = "/-\|"
+        chars = "/-\\|"
         i = 0
         while not self.stop_event.is_set():
             time.sleep(0.1)
@@ -147,14 +147,32 @@ def print_banner():
 def main():
     print_banner()
     
+    # Check for opendb command
+    if len(sys.argv) > 1 and sys.argv[1] == "opendb":
+        if not os.path.exists("gowitness.sqlite3"):
+            print("[!] Error: 'gowitness.sqlite3' database not found.")
+            print("    Run a scan first (and ensure artifacts are kept if you modified the script).")
+            sys.exit(1)
+        
+        print("[*] Starting gowitness report server...")
+        print("    [>] Access the report at: http://localhost:7171")
+        print("    [!] Press Ctrl+C to stop the server.")
+        try:
+            subprocess.run("gowitness report server", shell=True)
+        except KeyboardInterrupt:
+            print("\n[!] Server stopped.")
+        sys.exit(0)
+
     parser = argparse.ArgumentParser(description="DomScout - Subdomain Enumeration Tool")
     parser.add_argument("target", help="Target domain (e.g., example.com)")
     parser.add_argument("-r", "--resolvers", required=True, help="Path to resolvers file")
+    parser.add_argument("-rl", "--rate-limit", type=int, default=150, help="Rate limit for httpx (requests per second)")
     
     args = parser.parse_args()
     
     target = args.target
     resolvers = args.resolvers
+    rate_limit = args.rate_limit
 
     if not os.path.exists(resolvers):
         print(f"[!] Error: Resolvers file not found at {resolvers}")
@@ -171,7 +189,7 @@ def main():
         (f"findomain --quiet -t {target} > findomain.txt", "findomain"),
         (f"assetfinder -subs-only {target} > assetfinder.txt", "assetfinder"),
         (f"sublist3r -d {target} -t 50 -o sublist3r.txt", "sublist3r"),
-        (f'curl -s "https://crt.sh/?q=%25.{target}&output=json" | jq -r \'.[].name_value\' | sed \'s/\*\.//g\' > "crtsh.txt"', "crt.sh")
+        (f'curl -s "https://crt.sh/?q=%25.{target}&output=json" | jq -r \'.[].name_value\' | sed \'s/\\*\\.//g\' > "crtsh.txt"', "crt.sh")
     ]
 
     total_steps = len(commands) + 5 
@@ -254,7 +272,7 @@ def main():
         loader.update(current_step, "Running httpx (sudo)...")
         
 
-        httpx_cmd = "cat live_subs.txt | sudo httpx > alive_webservices.txt"
+        httpx_cmd = f"cat live_subs.txt | sudo httpx -rl {rate_limit} > alive_webservices.txt"
         try:
             subprocess.run(httpx_cmd, shell=True, check=True)
         except subprocess.CalledProcessError:
@@ -307,7 +325,7 @@ def main():
         except KeyboardInterrupt:
             print("\n[!] Server stopped.")
         
-        cleanup_files([], include_artifacts=True)
+        cleanup_files([], include_artifacts=False)
 
     except KeyboardInterrupt:
         loader.stop()
